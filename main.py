@@ -20,7 +20,7 @@ def process(file_name):
 				d[pixels[x,y]]=1
 			else:
 				d[pixels[x,y]]+=1
-	print(d) 
+	print(d)
 	sorted_d = sorted(d.items(), key=operator.itemgetter(0))
 	background = sorted_d[0][0]
 	captcha = sorted_d[1][0]
@@ -28,21 +28,23 @@ def process(file_name):
 
 	for x in range(width):
 		for y in range(height):
-			if pixels[x,y] != captcha:
-				pixels[x,y]=0
-			else:
-				pixels[x,y]=1
+			pixels[x,y] = 0 if pixels[x,y] != captcha else 1
 	im.putpalette([0, 0, 0,255,255,255])
 	#pattern fix
-	for x in range(1,width-1,1):
-		for y in range(1,height-1,1):
-			if (pixels[x,y] != pixels[x-1,y-1]) and (pixels[x,y] != pixels[x+1,y-1]) and (pixels[x,y] != pixels[x-1,y+1]) and (pixels[x,y] != pixels[x+1,y+1]):
+	for x in range(1, width-1):
+		for y in range(1, height-1):
+			if pixels[x, y] not in [
+			    pixels[x - 1, y - 1],
+			    pixels[x + 1, y - 1],
+			    pixels[x - 1, y + 1],
+			    pixels[x + 1, y + 1],
+			]:
 				pixels[x,y]=1
 
 	im.save("tmp.png")
 
 def main(file_name):
-	print ("[?] Input file:", file_name) 
+	print ("[?] Input file:", file_name)
 	process(file_name)
 	captcha_filtered = Image.open('tmp.png')
 	captcha_filtered = captcha_filtered.convert("P")
@@ -89,10 +91,10 @@ def main(file_name):
 
 			for letter in file_names:
 				#print letter
-				current = Fit(p) 
+				current = Fit(p)
 				current.letter = letter
 
-				sample_path = "samples/" + letter
+				sample_path = f"samples/{letter}"
 				#print sample_path
 				sample = Image.open(sample_path).convert('L').resize(base.size)
 				difference = ImageChops.difference(base, sample)
@@ -108,13 +110,10 @@ def main(file_name):
 			tmp = ''
 			tp, letter = best.letter.split('-')
 			letter = letter.split('.')[0]
-			if tp == 'u':
-				tmp = letter.upper()
-			else:
-				tmp = letter
-			print ("[+] New leter:", tmp) 
+			tmp = letter.upper() if tp == 'u' else letter
+			print ("[+] New leter:", tmp)
 			captcha = captcha + tmp
-		print ("[+] Correct captcha:", captcha) 
+		print ("[+] Correct captcha:", captcha)
 	else:
 		print ("[!] Missing characters in captcha !") 
 
